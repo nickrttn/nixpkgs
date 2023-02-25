@@ -45,7 +45,7 @@ stdenv.mkDerivation rec {
     description = "Library for color text mode, widget based user interfaces";
 
     license = licenses.lgpl2;
-    platforms = platforms.linux;
+    platforms = platforms.unix;
     maintainers = [ maintainers.viric ];
   };
 }
