@@ -1,4 +1,4 @@
-{ lib, fetchurl, stdenv, slang, popt, python }:
+{ lib, fetchurl, stdenv, slang, popt, python, gettext }:
 
 let
   pythonIncludePath = "${lib.getDev python}/include/python";
@@ -15,18 +15,13 @@ stdenv.mkDerivation rec {
   postPatch = ''
     sed -i -e s,/usr/bin/install,install, -e s,-I/usr/include/slang,, Makefile.in po/Makefile
 
-    substituteInPlace configure \
-      --replace "/usr/include/python" "${pythonIncludePath}"
-    substituteInPlace configure.ac \
-      --replace "/usr/include/python" "${pythonIncludePath}"
-
     substituteInPlace Makefile.in \
       --replace "ar rv" "${stdenv.cc.targetPrefix}ar rv"
   '';
 
   strictDeps = true;
   nativeBuildInputs = [ python ];
-  buildInputs = [ slang popt ];
+  buildInputs = [ slang popt gettext ];
 
   NIX_LDFLAGS = "-lncurses";
 
@@ -35,6 +30,11 @@ stdenv.mkDerivation rec {
     # programs to use at different stages.
     unset CPP
   '';
+
+  configureFlags = [
+    "--without-tcl"
+    "--with-python=${python}"
+  ];
 
   makeFlags = lib.optionals (stdenv.buildPlatform != stdenv.hostPlatform) [
     "CROSS_COMPILE=${stdenv.cc.targetPrefix}"
